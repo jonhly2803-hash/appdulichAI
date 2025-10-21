@@ -571,6 +571,57 @@
                     });
                 } else { // Discovery Mode
                     grandTotal = updateDiscoveryTotal();
+                    // Render selected items in summary card for discovery mode
+                    const selectedItems = {};
+                    document.querySelectorAll('.discovery-item:checked').forEach(el => {
+                        const category = el.dataset.category;
+                        const cost = parseFloat(el.dataset.cost) || 0;
+                        const unit = el.dataset.unit;
+                        const duration = parseInt(budgetData.details.duration) || 1;
+                        const adults = parseInt(budgetData.details.adults) || 1;
+                        let itemTotal = cost;
+
+                         switch(unit) {
+                            case 'perNight':
+                                itemTotal = cost * (duration > 1 ? duration - 1 : 0);
+                                break;
+                            case 'perPersonPerMeal':
+                                itemTotal = cost * adults;
+                                break;
+                            case 'perDay':
+                                itemTotal = cost * duration;
+                                break;
+                            case 'perPerson':
+                            case 'perPersonRoundtrip':
+                                itemTotal = cost * adults;
+                                break;
+                            case 'fixedForTrip':
+                                itemTotal = cost;
+                                break;
+                        }
+                        
+                        if (itemTotal > 0) {
+                            if (!selectedItems[category]) selectedItems[category] = 0;
+                            selectedItems[category] += itemTotal;
+                        }
+                    });
+
+                    const categoryMap = {
+                        mainTransportation: { name: 'Di chuyển chính', icon: 'fa-plane-departure' }, 
+                        internalTransportation: { name: 'Di chuyển nội bộ', icon: 'fa-taxi' },
+                        accommodation: { name: 'Chỗ ở', icon: 'fa-hotel' }, 
+                        food: { name: 'Ăn uống', icon: 'fa-utensils' }, 
+                        activities: { name: 'Hoạt động & Tham quan', icon: 'fa-camera-retro' }
+                    };
+
+                    for (const category in categoryMap) {
+                        if (selectedItems[category] && selectedItems[category] > 0) {
+                            const summaryItem = document.createElement('div');
+                            summaryItem.className = 'flex justify-between items-center';
+                            summaryItem.innerHTML = `<div class="flex items-center text-sm"><i class="fas ${categoryMap[category].icon} mr-2 text-gray-400"></i><span>${categoryMap[category].name}</span></div><span class="font-medium text-sm">${formatCurrency(selectedItems[category])}</span>`;
+                            summaryContainer.appendChild(summaryItem);
+                        }
+                    }
                 }
 
                 const estimatedBudget = budgetData.details.estimatedBudget || 0;
@@ -711,7 +762,7 @@
                 if (isRefresh) {
                     const checkedItems = [];
                     const uncheckedItems = [];
-                    document.querySelectorAll('.discovery-item:not([data-category="mainTransportation"])').forEach(el => {
+                    document.querySelectorAll('.discovery-item').forEach(el => {
                         const itemData = { id: el.id, name: el.dataset.name };
                         if (el.checked) checkedItems.push(itemData);
                         else uncheckedItems.push(itemData);
@@ -723,9 +774,9 @@
                     userPrompt = `Là một chuyên gia du lịch Việt Nam, hãy đề xuất các lựa chọn MỚI và KHÁC BIỆT cho chuyến đi đến ${destination}.
                      - Người dùng đã chọn và muốn giữ các mục sau: ${checkedNames}.
                      - Người dùng không thích và muốn thay thế các gợi ý sau: ${uncheckedNames}.
-                     - Vui lòng cung cấp các gợi ý hoàn toàn mới cho các danh mục Chỗ ở, Ăn uống, và Hoạt động, KHÔNG lặp lại những gợi ý đã bị từ chối và KHÔNG gợi ý lại phần di chuyển.
+                     - Vui lòng cung cấp các gợi ý hoàn toàn mới cho các danh mục Chỗ ở, Ăn uống, và Hoạt động, KHÔNG lặp lại những gợi ý đã bị từ chối.
                      - Thông tin chuyến đi: ${duration} ngày, ${adults} người lớn, ${children} trẻ em, từ ${startingPoint}, phong cách ${style}, sở thích ${interests.join(', ')}.
-                     QUAN TRỌNG: Các gợi ý "accommodation" MỚI PHẢI phù hợp với loại hình người dùng đã chọn: '${accommodationType}'.
+                     QUAN TRỌNG: Các gợi ý "accommodation" MỚI PHẢI phù hợp với loại hình người dùng đã chọn: '${accommodationType}'. Vui lòng CHỈ gợi ý các mục MỚI, KHÔNG bao gồm lại phần mainTransportation và internalTransportation trong kết quả, và KHÔNG lặp lại bất kỳ mục nào đã được chọn.
                      Yêu cầu đầu ra PHẢI là một chuỗi JSON hợp lệ, không có markdown hay text nào khác, chỉ chứa các gợi ý MỚI. Cấu trúc JSON:
                      { 
                         "suggestions": { 
@@ -748,7 +799,7 @@
                      }
                      QUAN TRỌNG: 
                      - Các gợi ý "accommodation" PHẢI phù hợp với loại hình người dùng đã chọn: '${accommodationType}'.
-                     - Hãy đưa ra 1-2 gợi ý cho "internalTransportation", bao gồm một khoản chi phí chung (taxi, grab) ở mức RẤT HỢP LÝ VÀ THỰC TẾ (ví dụ: khoảng 300,000-500,000 VNĐ cho toàn chuyến đi, đơn vị tính 'fixedForTrip') và một lựa chọn thuê xe máy nếu phù hợp (đơn vị tính 'perDay').
+                     - Hãy đưa ra 1-2 gợi ý cho "internalTransportation", bao gồm một khoản chi phí chung (taxi, grab) ở mức hợp lý và một lựa chọn thuê xe máy nếu phù hợp (đơn vị tính 'perDay').
                      - Hãy đưa ra 2-3 gợi ý cho "mainTransportation" và 5-7 gợi ý cho các danh mục còn lại.`;
                 }
 
@@ -781,8 +832,9 @@
                 if (isRefresh) {
                     // Preserve existing checked items and the entire transportation card
                     document.querySelectorAll('.discovery-item').forEach(el => {
-                        if (el.checked || el.dataset.category === 'mainTransportation' || el.dataset.category === 'internalTransportation') {
-                            const category = el.dataset.category;
+                        const category = el.dataset.category;
+                        // ONLY preserve items if they were checked OR if they belong to transportation (since we don't regenerate transportation on refresh)
+                        if (el.checked || category === 'mainTransportation' || category === 'internalTransportation') {
                             if (categoryMap[category]) {
                                 categoryMap[category].items.push(createDiscoveryItemHtml({
                                     id: el.id,
@@ -791,7 +843,7 @@
                                     estimatedCost: parseFloat(el.dataset.cost),
                                     unit: el.dataset.unit,
                                     category: category
-                                }, el.checked, el.disabled));
+                                }, el.checked, false)); // isDisabled is always false here, removing the auto-select lock
                             }
                         }
                     });
@@ -801,15 +853,14 @@
                 for (const key in newSuggestions) {
                     if (newSuggestions[key] && categoryMap[key]) {
                         const items = Array.isArray(newSuggestions[key]) ? newSuggestions[key] : [newSuggestions[key]];
-                        items.forEach((item, index) => {
+                        items.forEach((item) => {
                             const isExisting = discoveryContent.querySelector(`#${item.id}`) !== null;
-                            if (!isExisting) {
-                                let isChecked = false, isDisabled = false;
-                                
-                                // REMOVED: Logic to auto-check and disable the first internal transportation item.
-                                // All internal transportation options are now optional.
-
-                                categoryMap[key].items.push(createDiscoveryItemHtml({ ...item, category: key }, isChecked, isDisabled));
+                            const isInternalTransportPreserved = isRefresh && key === 'internalTransportation' && categoryMap[key].items.some(html => html.includes(`id="${item.id}"`));
+                            
+                            // Only add new items that are not already present (either preserved or newly generated)
+                            if (!isExisting && !isInternalTransportPreserved) {
+                                // IMPORTANT: Removed the logic that sets isChecked=true and isDisabled=true for the first internalTransportation item
+                                categoryMap[key].items.push(createDiscoveryItemHtml({ ...item, category: key }, false, false)); 
                             }
                         });
                     }
@@ -892,28 +943,53 @@
             };
 
             const callGeminiAPI = async (prompt) => {
-                 const apiKey = "";
+                 // API Key: Updated by user
+                 const apiKey = "AIzaSyC6ZFLRGt3qR7ROFpOldirS0aiVuvJC-Lo";
                  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                  const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                 const response = await fetch(apiUrl, {
-                     method: 'POST',
-                     headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify(payload)
-                 });
-
-                 if (!response.ok) {
-                     const errorText = await response.text();
-                     throw new Error(`Lỗi API: ${response.status} - ${errorText}`);
-                 }
-
-                 const result = await response.json();
-                 const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                 if (!generatedText) throw new Error("AI không trả về nội dung.");
-
-                 const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-                 if (!jsonMatch) throw new Error("Không tìm thấy dữ liệu JSON hợp lệ trong phản hồi của AI.");
                  
-                 return JSON.parse(jsonMatch[0]);
+                 // Exponential backoff logic
+                 const maxRetries = 5;
+                 let delay = 1000;
+
+                 for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.status === 429 && i < maxRetries - 1) {
+                            // Rate limit exceeded, wait and retry
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Double the delay
+                            continue;
+                        }
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`Lỗi API: ${response.status} - ${errorText}`);
+                        }
+
+                        const result = await response.json();
+                        const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (!generatedText) throw new Error("AI không trả về nội dung.");
+
+                        const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+                        if (!jsonMatch) throw new Error("Không tìm thấy dữ liệu JSON hợp lệ trong phản hồi của AI.");
+                        
+                        return JSON.parse(jsonMatch[0]);
+
+                    } catch (error) {
+                        if (i === maxRetries - 1) {
+                            throw error; // Throw the error if all retries fail
+                        }
+                        // For non-rate-limit errors, we still apply backoff before retrying
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; 
+                    }
+                }
             };
 
             generatePlanBtn.addEventListener('click', async () => {
@@ -1143,4 +1219,3 @@
     </script>
 </body>
 </html>
-
