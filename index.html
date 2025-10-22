@@ -153,13 +153,16 @@
         <header class="text-center mb-8">
             <i class="fas fa-map-marked-alt text-4xl sm:text-5xl text-blue-600 mb-4"></i>
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Công cụ Lập kế hoạch Du lịch Thông minh</h1>
-            <p class="text-gray-600 mt-2">Dự toán chi phí và nhận gợi ý lịch trình cho chuyến đi của bạn!</p>
+            <p class="text-gray-600 mt-2">Dự toán chi phí, gợi ý điểm đến và nhận lịch trình cho chuyến đi của bạn!</p>
         </header>
         
         <!-- Mode Switcher -->
-        <div class="mb-6 flex justify-center border-b bg-white rounded-t-lg shadow-sm sticky top-0 z-10">
+        <div class="mb-6 flex flex-col sm:flex-row justify-center border-b bg-white rounded-t-lg shadow-sm sticky top-0 z-10">
             <button id="mode-auto-btn" class="mode-button flex-1 sm:flex-none px-6 py-3 font-semibold active">
                 <i class="fas fa-magic-wand-sparkles mr-2"></i> Kế hoạch Tự động
+            </button>
+            <button id="mode-suggest-btn" class="mode-button flex-1 sm:flex-none px-6 py-3 font-semibold text-gray-500">
+                <i class="fas fa-lightbulb mr-2"></i> Gợi ý Điểm đến
             </button>
             <button id="mode-discovery-btn" class="mode-button flex-1 sm:flex-none px-6 py-3 font-semibold text-gray-500">
                 <i class="fas fa-compass mr-2"></i> Khám phá & Tự chọn
@@ -170,36 +173,74 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-2 space-y-6">
-                <!-- Trip Details Card (Shared for both modes) -->
+                <!-- Trip Details Card (Shared for all modes) -->
                 <div id="trip-details-card" class="card p-6">
                     <h2 class="text-xl font-semibold text-gray-700 border-b pb-3 mb-4 flex items-center"><i class="fas fa-info-circle mr-3 text-lg text-blue-500"></i>1. Nhập thông tin chuyến đi</h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="starting-point" class="block text-sm font-medium text-gray-600 mb-1">Điểm xuất phát</label>
+                            <label for="starting-point" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-plane-departure fa-fw mr-2 text-gray-500"></i>Điểm xuất phát</label>
                             <input type="text" id="starting-point" placeholder="Ví dụ: TP. Hồ Chí Minh" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div>
-                            <label for="destination" class="block text-sm font-medium text-gray-600 mb-1">Điểm đến</label>
+                        <div id="destination-input-container">
+                            <label for="destination" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-map-marker-alt fa-fw mr-2 text-gray-500"></i>Điểm đến</label>
                             <input type="text" id="destination" placeholder="Ví dụ: Đà Lạt" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                         </div>
+                         <!-- New Geography Input -->
+                        <div id="geography-input-container" class="hidden sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-map-signs fa-fw mr-2 text-gray-500"></i>Loại hình địa lý mong muốn</label>
+                            <div id="geography-types-container" class="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2">
+                                <div class="flex items-center">
+                                    <input id="geo-bien" name="geography-type" type="checkbox" value="Biển" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-bien" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-water fa-fw w-5 text-blue-500"></i>Biển</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-nui" name="geography-type" type="checkbox" value="Núi" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-nui" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-mountain fa-fw w-5 text-green-600"></i>Núi</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-thanhpho" name="geography-type" type="checkbox" value="Thành phố" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-thanhpho" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-city fa-fw w-5 text-gray-600"></i>Thành phố</label>
+                                </div>
+                                 <div class="flex items-center">
+                                    <input id="geo-caonguyen" name="geography-type" type="checkbox" value="Cao nguyên" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-caonguyen" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-mountain-sun fa-fw w-5 text-yellow-600"></i>Cao nguyên</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-songnuoc" name="geography-type" type="checkbox" value="Miền Tây sông nước" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-songnuoc" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-ship fa-fw w-5 text-cyan-600"></i>Sông nước</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-ditich" name="geography-type" type="checkbox" value="Di tích lịch sử" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-ditich" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-landmark fa-fw w-5 text-orange-700"></i>Di tích</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-dao" name="geography-type" type="checkbox" value="Đảo" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-dao" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-umbrella-beach fa-fw w-5 text-pink-500"></i>Đảo</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="geo-nongthon" name="geography-type" type="checkbox" value="Nông thôn/Đồng bằng" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="geo-nongthon" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-leaf fa-fw w-5 text-green-500"></i>Nông thôn</label>
+                                </div>
+                            </div>
+                        </div>
                         <div>
-                            <label for="trip-duration" class="block text-sm font-medium text-gray-600 mb-1">Số ngày (ví dụ: 3 ngày 2 đêm)</label>
+                            <label for="trip-duration" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-calendar-day fa-fw mr-2 text-gray-500"></i>Số ngày (ví dụ: 3 ngày 2 đêm)</label>
                             <input type="number" id="trip-duration" placeholder="Ví dụ: 3" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" min="1">
                         </div>
                         <div>
-                            <label for="adults" class="block text-sm font-medium text-gray-600 mb-1">Số người lớn</label>
+                            <label for="adults" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-user fa-fw mr-2 text-gray-500"></i>Số người lớn</label>
                             <input type="number" id="adults" placeholder="Ví dụ: 2" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" min="1">
                         </div>
                         <div>
-                            <label for="children" class="block text-sm font-medium text-gray-600 mb-1">Số trẻ em</label>
+                            <label for="children" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-child fa-fw mr-2 text-gray-500"></i>Số trẻ em</label>
                             <input type="number" id="children" placeholder="Ví dụ: 1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" min="0">
                         </div>
                         <div id="budget-input-container">
-                            <label for="estimated-budget" class="block text-sm font-medium text-gray-600 mb-1">Ngân sách dự kiến (VNĐ)</label>
+                            <label for="estimated-budget" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-money-bill-wave fa-fw mr-2 text-gray-500"></i>Ngân sách dự kiến (VNĐ)</label>
                             <input type="text" id="estimated-budget" placeholder="Ví dụ: 15.000.000" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                         </div>
                          <div class="sm:col-span-2">
-                            <label for="accommodation-type" class="block text-sm font-medium text-gray-600 mb-1">Loại hình chỗ ở</label>
+                            <label for="accommodation-type" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-bed fa-fw mr-2 text-gray-500"></i>Loại hình chỗ ở</label>
                             <select id="accommodation-type" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                                 <option value="Khách sạn thường">Khách sạn thường</option>
                                 <option value="Homestay">Homestay</option>
@@ -209,36 +250,36 @@
                                 <option value="Khách sạn 5 sao">Khách sạn 5 sao</option>
                             </select>
                         </div>
-                        <div>
-                            <label for="travel-style" class="block text-sm font-medium text-gray-600 mb-1">Phong cách du lịch</label>
+                        <div id="travel-style-container">
+                            <label for="travel-style" class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-suitcase-rolling fa-fw mr-2 text-gray-500"></i>Phong cách du lịch</label>
                             <select id="travel-style" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
                                 <option value="Tiết kiệm">Tiết kiệm</option>
                                 <option value="Cân bằng" selected>Cân bằng</option>
                                 <option value="Sang trọng">Sang trọng</option>
                             </select>
                         </div>
-                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-600 mb-1">Sở thích</label>
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-600 mb-1"><i class="fas fa-heart fa-fw mr-2 text-gray-500"></i>Sở thích</label>
                             <div id="travel-interests-container" class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
                                 <div class="flex items-center">
                                     <input id="interest-am-thuc" name="travel-interest" type="checkbox" value="Ẩm thực" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <label for="interest-am-thuc" class="ml-2 block text-sm text-gray-900">Ẩm thực</label>
+                                    <label for="interest-am-thuc" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-utensils fa-fw w-5 text-orange-500"></i>Ẩm thực</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input id="interest-lich-su" name="travel-interest" type="checkbox" value="Lịch sử" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <label for="interest-lich-su" class="ml-2 block text-sm text-gray-900">Lịch sử</label>
+                                    <label for="interest-lich-su" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-scroll fa-fw w-5 text-yellow-700"></i>Lịch sử</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input id="interest-thien-nhien" name="travel-interest" type="checkbox" value="Thiên nhiên" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <label for="interest-thien-nhien" class="ml-2 block text-sm text-gray-900">Thiên nhiên</label>
+                                    <label for="interest-thien-nhien" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-tree fa-fw w-5 text-green-600"></i>Thiên nhiên</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input id="interest-mao-hiem" name="travel-interest" type="checkbox" value="Mạo hiểm" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <label for="interest-mao-hiem" class="ml-2 block text-sm text-gray-900">Mạo hiểm</label>
+                                    <label for="interest-mao-hiem" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-person-hiking fa-fw w-5 text-purple-600"></i>Mạo hiểm</label>
                                 </div>
                                 <div class="flex items-center">
                                     <input id="interest-mua-sam" name="travel-interest" type="checkbox" value="Mua sắm" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <label for="interest-mua-sam" class="ml-2 block text-sm text-gray-900">Mua sắm</label>
+                                    <label for="interest-mua-sam" class="ml-2 block text-sm text-gray-900 flex items-center"><i class="fa-solid fa-bag-shopping fa-fw w-5 text-pink-600"></i>Mua sắm</label>
                                 </div>
                             </div>
                         </div>
@@ -249,7 +290,7 @@
                     </button>
                 </div>
                 
-                <!-- AUTO PLANNER MODE CONTENT -->
+                <!-- AUTO PLANNER & SUGGESTION MODE CONTENT -->
                 <div id="auto-planner-mode" class="space-y-6">
                     <!-- Itinerary Suggestion Card -->
                     <div id="itinerary-card" class="card p-6">
@@ -366,13 +407,19 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            let currentMode = 'auto'; // 'auto' or 'discovery'
+            let currentMode = 'auto'; // 'auto', 'suggest', or 'discovery'
             
             // DOM Elements
             const modeAutoBtn = document.getElementById('mode-auto-btn');
+            const modeSuggestBtn = document.getElementById('mode-suggest-btn'); // New
             const modeDiscoveryBtn = document.getElementById('mode-discovery-btn');
+            
             const autoPlannerModeDiv = document.getElementById('auto-planner-mode');
             const discoveryModeDiv = document.getElementById('discovery-mode');
+            
+            const destinationInputContainer = document.getElementById('destination-input-container'); // New
+            const geographyInputContainer = document.getElementById('geography-input-container'); // New
+            
             const grandTotalLabel = document.getElementById('grand-total-label');
             const discoveryContent = document.getElementById('discovery-content');
             const discoveryLoader = document.getElementById('discovery-loader');
@@ -398,6 +445,7 @@
             const estimatedBudgetInput = document.getElementById('estimated-budget');
             const accommodationTypeInput = document.getElementById('accommodation-type');
             const travelStyleInput = document.getElementById('travel-style');
+            const travelStyleContainer = document.getElementById('travel-style-container');
             
             const generatePlanBtn = document.getElementById('generate-plan-btn');
             const itineraryContent = document.getElementById('itinerary-content');
@@ -431,7 +479,8 @@
                     startingPoint: '', destination: '', duration: '', adults: 1, children: 0,
                     estimatedBudget: 0, accommodationType: 'Khách sạn thường',
                     style: 'Cân bằng',
-                    interests: []
+                    interests: [],
+                    geographyTypes: [] // New
                 },
                 categories: [
                     { id: 'transportation', name: 'Di chuyển', icon: 'fa-plane-departure', items: [] },
@@ -452,6 +501,7 @@
 
             const updateActionButtonsState = () => {
                 const hasContent = (currentMode === 'auto' && budgetData.categories.some(c => c.items.length > 0)) ||
+                                   (currentMode === 'suggest' && budgetData.categories.some(c => c.items.length > 0)) ||
                                    (currentMode === 'discovery' && discoveryContent.querySelector('.discovery-item') !== null);
 
                 downloadPdfButton.disabled = !hasContent;
@@ -464,20 +514,35 @@
 
             const switchMode = (newMode) => {
                 currentMode = newMode;
+                // Reset all buttons
+                [modeAutoBtn, modeSuggestBtn, modeDiscoveryBtn].forEach(btn => btn.classList.remove('active'));
+                
+                // Hide all main content
+                [autoPlannerModeDiv, discoveryModeDiv].forEach(div => div.classList.add('hidden'));
+                
+                // Default UI state
+                destinationInputContainer.classList.remove('hidden');
+                geographyInputContainer.classList.add('hidden');
+                budgetInputContainer.classList.remove('hidden');
+                summaryEstimatedContainer.classList.remove('hidden');
+                summaryRemainingContainer.classList.remove('hidden');
+                travelStyleContainer.classList.remove('hidden');
+                
                 if (newMode === 'auto') {
                     modeAutoBtn.classList.add('active');
-                    modeDiscoveryBtn.classList.remove('active');
                     autoPlannerModeDiv.classList.remove('hidden');
-                    discoveryModeDiv.classList.add('hidden');
-                    budgetInputContainer.classList.remove('hidden');
-                    summaryEstimatedContainer.classList.remove('hidden');
-                    summaryRemainingContainer.classList.remove('hidden');
                     grandTotalLabel.textContent = 'TỔNG CHI DỰ KIẾN:';
                     generatePlanBtn.innerHTML = '<i class="fas fa-magic-wand-sparkles mr-2"></i> 2. Tạo kế hoạch & Ngân sách tự động';
-                } else {
-                    modeAutoBtn.classList.remove('active');
+                } else if (newMode === 'suggest') {
+                    modeSuggestBtn.classList.add('active');
+                    autoPlannerModeDiv.classList.remove('hidden'); // Re-use auto planner's UI
+                    destinationInputContainer.classList.add('hidden'); // Hide destination
+                    geographyInputContainer.classList.remove('hidden'); // Show geography
+                    grandTotalLabel.textContent = 'TỔNG CHI DỰ KIẾN:';
+                    generatePlanBtn.innerHTML = '<i class="fas fa-lightbulb mr-2"></i> 2. Gợi ý & Tạo Kế hoạch';
+                    travelStyleContainer.classList.add('hidden');
+                } else { // discovery
                     modeDiscoveryBtn.classList.add('active');
-                    autoPlannerModeDiv.classList.add('hidden');
                     discoveryModeDiv.classList.remove('hidden');
                     budgetInputContainer.classList.add('hidden');
                     summaryEstimatedContainer.classList.add('hidden');
@@ -489,6 +554,7 @@
                 updateActionButtonsState();
             };
             modeAutoBtn.addEventListener('click', () => switchMode('auto'));
+            modeSuggestBtn.addEventListener('click', () => switchMode('suggest'));
             modeDiscoveryBtn.addEventListener('click', () => switchMode('discovery'));
 
             
@@ -502,10 +568,17 @@
                 estimatedBudgetInput.value = details.estimatedBudget ? new Intl.NumberFormat('vi-VN').format(details.estimatedBudget) : '';
                 accommodationTypeInput.value = details.accommodationType || 'Khách sạn thường';
                 travelStyleInput.value = details.style || 'Cân bằng';
+                
                 const interests = details.interests || [];
                 document.querySelectorAll('input[name="travel-interest"]').forEach(checkbox => {
                     checkbox.checked = interests.includes(checkbox.value);
                 });
+
+                const geoTypes = details.geographyTypes || []; // New
+                document.querySelectorAll('input[name="geography-type"]').forEach(checkbox => {
+                    checkbox.checked = geoTypes.includes(checkbox.value);
+                });
+                
                 itineraryContent.innerHTML = budgetData.itineraryHTML;
             };
             
@@ -514,6 +587,12 @@
                 document.querySelectorAll('input[name="travel-interest"]:checked').forEach(checkbox => {
                     selectedInterests.push(checkbox.value);
                 });
+
+                const selectedGeoTypes = []; // New
+                document.querySelectorAll('input[name="geography-type"]:checked').forEach(checkbox => {
+                    selectedGeoTypes.push(checkbox.value);
+                });
+                
                 const rawBudget = estimatedBudgetInput.value.replace(/\./g, '');
                 budgetData.details = {
                     startingPoint: startingPointInput.value,
@@ -524,7 +603,8 @@
                     estimatedBudget: parseFloat(rawBudget) || 0,
                     accommodationType: accommodationTypeInput.value,
                     style: travelStyleInput.value,
-                    interests: selectedInterests
+                    interests: selectedInterests,
+                    geographyTypes: selectedGeoTypes // New
                 };
                 updateTotals();
                 saveData();
@@ -535,6 +615,9 @@
             });
             estimatedBudgetInput.addEventListener('blur', saveDetails); // Save on blur for budget
             document.querySelectorAll('input[name="travel-interest"]').forEach(checkbox => {
+                checkbox.addEventListener('change', saveDetails);
+            });
+            document.querySelectorAll('input[name="geography-type"]').forEach(checkbox => { // New
                 checkbox.addEventListener('change', saveDetails);
             });
             
@@ -555,7 +638,7 @@
                 let grandTotal = 0;
                 summaryContainer.innerHTML = '';
                 
-                if (currentMode === 'auto') {
+                if (currentMode === 'auto' || currentMode === 'suggest') {
                     budgetData.categories.forEach(category => {
                         const categoryTotal = category.items.reduce((sum, item) => sum + (item.cost || 0), 0);
                         grandTotal += categoryTotal;
@@ -677,14 +760,21 @@
             };
 
             const formatItineraryFromJSON = (planData) => {
-                if (!planData || !planData.dailyPlan) return '<p>Lỗi định dạng dữ liệu lịch trình.</p>';
-                let html = planData.dailyPlan.map(day => {
-                    let dayHtml = `<h2>Ngày ${day.day}</h2><ul>`;
+                let html = '';
+                // New: Display suggested destination if it exists
+                if (planData.suggestedDestination) {
+                    html += `<h2 class="text-xl text-indigo-700 font-bold p-4 bg-indigo-100 rounded-lg mb-4"><i class="fas fa-star mr-3"></i>Gợi ý điểm đến cho bạn: ${planData.suggestedDestination}</h2>`;
+                }
+
+                if (!planData || !planData.dailyPlan) return html + '<p>Lỗi định dạng dữ liệu lịch trình.</p>';
+                
+                html += planData.dailyPlan.map(day => {
+                    let dayHtml = `<h2><i class="fas fa-calendar-day mr-3 text-blue-500"></i>Ngày ${day.day}</h2><ul>`;
                     dayHtml += day.activities.map(activity => `<li><strong>${activity.description}:</strong> ${formatCurrency(activity.estimatedCost)}</li>`).join('');
                     dayHtml += '</ul>';
                     return dayHtml;
                 }).join('');
-                html += `<h2 class="text-green-600">Tổng chi phí dự kiến: ${formatCurrency(planData.totalEstimatedCost)}</h2>`;
+                html += `<h2 class="text-green-600"><i class="fas fa-money-check-dollar mr-3"></i>Tổng chi phí dự kiến: ${formatCurrency(planData.totalEstimatedCost)}</h2>`;
                 return html;
             };
 
@@ -754,6 +844,79 @@
                     itineraryLoader.classList.add('hidden');
                 }
             };
+            
+            // New Function for Suggestion Mode
+            const handleSuggestMode = async (details) => {
+                const { startingPoint, duration, accommodationType, adults, children, estimatedBudget, interests, geographyTypes } = details;
+                 const userPrompt = `Bạn là một chuyên gia lập kế hoạch du lịch tại Việt Nam. Người dùng muốn một gợi ý điểm đến.
+                - Người dùng KHÔNG có điểm đến cụ thể.
+                - Họ muốn đi đến một nơi có đặc điểm địa lý: ${geographyTypes.join(', ')}
+                - Chuyến đi từ: ${startingPoint}
+                - Thời gian: ${duration} ngày (nghĩa là ${duration > 1 ? duration - 1 : 1} đêm)
+                - Số lượng: ${adults} người lớn và ${children} trẻ em
+                - Loại hình lưu trú: ${accommodationType}
+                - Sở thích: ${interests.join(', ')}
+                - Ngân sách người dùng đưa ra: ${formatCurrency(estimatedBudget)}
+
+                Yêu cầu:
+                1. Dựa trên tất cả thông tin trên (đặc biệt là điểm xuất phát, loại hình địa lý và ngân sách), hãy chọn MỘT (1) điểm đến phù hợp nhất tại Việt Nam.
+                2. Sau khi đã chọn, hãy tạo kế hoạch chi tiết cho điểm đến BẠN VỪA CHỌN.
+
+                Yêu cầu đầu ra PHẢI là một chuỗi JSON hợp lệ, KHÔNG chứa bất kỳ markdown (như \`\`\`json) hay văn bản giải thích nào khác. Chỉ trả về đối tượng JSON. Cấu trúc JSON như sau:
+                {
+                  "suggestedDestination": string,
+                  "totalEstimatedCost": number,
+                  "isBudgetFeasible": boolean,
+                  "feasibilityMessage": string,
+                   "alternativeSuggestions": { "interests": string[] | null },
+                  "dailyPlan": [ { "day": number, "activities": [ { "description": string, "estimatedCost": number, "category": "transportation" | "accommodation" | "food" | "activities" | "misc" } ] } ]
+                }
+                Trong đó:
+                - "suggestedDestination": Tên của điểm đến (thành phố/địa danh) BẠN VỪA CHỌN.
+                - "totalEstimatedCost": Tổng chi phí thực tế bạn dự kiến cho chuyến đi đến điểm đến đã gợi ý.
+                - "isBudgetFeasible": So sánh "totalEstimatedCost" với ngân sách người dùng.
+                - "feasibilityMessage": Nếu "isBudgetFeasible" là false, hãy viết một câu trả lời thân thiện.
+                - "alternativeSuggestions": Gợi ý nếu "isBudgetFeasible" là false.
+                - "dailyPlan": Lập kế hoạch chi tiết cho từng ngày tại điểm đến đã gợi ý.`;
+
+                itineraryLoader.classList.remove('hidden');
+                itineraryContent.innerHTML = '';
+                
+                try {
+                    const planData = await callGeminiAPI(userPrompt);
+                    if (!planData.isBudgetFeasible) {
+                        const randomMessage = wittyMessages[Math.floor(Math.random() * wittyMessages.length)];
+                        let suggestionMessage = '';
+                        if (planData.alternativeSuggestions) {
+                            const { interests } = planData.alternativeSuggestions;
+                            let suggestions = [];
+                            if (interests && interests.length > 0) suggestions.push(`sở thích như <strong>'${interests.join(', ')}'</strong>`);
+                            if (suggestions.length > 0) {
+                                suggestionMessage = `<br><br><div class="mt-4 p-3 bg-blue-50 rounded-lg text-left text-sm"><p class="font-semibold text-blue-800">💡 Gợi ý:</p><p class="text-blue-700">Với ngân sách này, bạn có thể cân nhắc ${suggestions.join(' và ')} để có một chuyến đi tuyệt vời hơn.</p></div>`;
+                            }
+                        }
+                        budgetModalMessage.innerHTML = `${randomMessage}<br><br><i class="text-sm">${planData.feasibilityMessage}</i>${suggestionMessage}`;
+                        budgetModal.classList.remove('hidden');
+                        itineraryContent.innerHTML = `<p class="text-lg text-amber-700 font-semibold p-4 bg-amber-100 rounded-md">Vui lòng điều chỉnh lại ngân sách hoặc thông tin chuyến đi.</p>`;
+                        budgetData.categories.forEach(c => c.items = []);
+                    } else {
+                        itineraryContent.innerHTML = formatItineraryFromJSON(planData);
+                        budgetData.categories.forEach(c => c.items = []);
+                        planData.dailyPlan.forEach(day => {
+                            day.activities.forEach(activity => {
+                                const category = budgetData.categories.find(c => c.id === activity.category);
+                                if (category) category.items.push({ description: `Ngày ${day.day}: ${activity.description}`, cost: activity.estimatedCost });
+                            });
+                        });
+                    }
+                    renderUI();
+                } catch (error) {
+                    console.error('Error in Suggest Mode:', error);
+                    itineraryContent.innerHTML = `<p class="text-red-600 font-semibold p-4 bg-red-100 rounded-md">Đã có lỗi xảy ra: ${error.message}</p>`;
+                } finally {
+                    itineraryLoader.classList.add('hidden');
+                }
+            };
 
             const handleDiscoveryMode = async (details, isRefresh = false) => {
                 const { destination, duration, adults, children, style, interests, startingPoint, accommodationType } = details;
@@ -787,20 +950,20 @@
                      }`;
                 } else {
                     userPrompt = `Là một chuyên gia du lịch Việt Nam, hãy đề xuất các lựa chọn cho chuyến đi từ ${startingPoint} đến ${destination} trong ${duration} ngày cho ${adults} người lớn và ${children} trẻ em, phong cách ${style}, sở thích ${interests.join(', ')}.
-                     Yêu cầu đầu ra PHẢI là một chuỗi JSON hợp lệ, không có markdown hay text nào khác. Cấu trúc JSON:
-                     {
-                       "suggestions": {
-                         "mainTransportation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPersonRoundtrip" } ],
-                         "internalTransportation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "fixedForTrip" | "perDay" } ],
-                         "accommodation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perNight" } ],
-                         "food": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPersonPerMeal" } ],
-                         "activities": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPerson" } ]
-                       }
-                     }
-                     QUAN TRỌNG: 
-                     - Các gợi ý "accommodation" PHẢI phù hợp với loại hình người dùng đã chọn: '${accommodationType}'.
-                     - Hãy đưa ra 1-2 gợi ý cho "internalTransportation", bao gồm một khoản chi phí chung (taxi, grab) ở mức hợp lý và một lựa chọn thuê xe máy nếu phù hợp (đơn vị tính 'perDay').
-                     - Hãy đưa ra 2-3 gợi ý cho "mainTransportation" và 5-7 gợi ý cho các danh mục còn lại.`;
+                      Yêu cầu đầu ra PHẢI là một chuỗi JSON hợp lệ, không có markdown hay text nào khác. Cấu trúc JSON:
+                      {
+                        "suggestions": {
+                          "mainTransportation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPersonRoundtrip" } ],
+                          "internalTransportation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "fixedForTrip" | "perDay" } ],
+                          "accommodation": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perNight" } ],
+                          "food": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPersonPerMeal" } ],
+                          "activities": [ { "id": string, "name": string, "description": string, "estimatedCost": number, "unit": "perPerson" } ]
+                        }
+                      }
+                      QUAN TRỌNG: 
+                      - Các gợi ý "accommodation" PHẢI phù hợp với loại hình người dùng đã chọn: '${accommodationType}'.
+                      - Hãy đưa ra 1-2 gợi ý cho "internalTransportation", bao gồm một khoản chi phí chung (taxi, grab) ở mức hợp lý và một lựa chọn thuê xe máy nếu phù hợp (đơn vị tính 'perDay').
+                      - Hãy đưa ra 2-3 gợi ý cho "mainTransportation" và 5-7 gợi ý cho các danh mục còn lại.`;
                 }
 
                 discoveryLoader.classList.remove('hidden');
@@ -991,15 +1154,33 @@
                     }
                 }
             };
+            
+            const showAlert = (title, message) => {
+                alertModalTitle.textContent = title;
+                alertModalMessage.textContent = message;
+                alertModal.classList.remove('hidden');
+            };
 
             generatePlanBtn.addEventListener('click', async () => {
                 saveDetails(); 
-                const { destination, duration, startingPoint } = budgetData.details;
+                const { destination, duration, startingPoint, geographyTypes } = budgetData.details;
+                const targetContent = (currentMode === 'auto' || currentMode === 'suggest') ? itineraryContent : discoveryContent;
 
-                if (!destination || !duration || !startingPoint) {
-                    const targetContent = currentMode === 'auto' ? itineraryContent : discoveryContent;
-                    targetContent.innerHTML = `<p class="text-amber-700 font-semibold p-4 bg-amber-100 rounded-md card">Vui lòng nhập Điểm xuất phát, Điểm đến và Số ngày để tạo kế hoạch.</p>`;
-                    saveData();
+                // Validation
+                if (!startingPoint || !duration) {
+                    targetContent.innerHTML = `<p class="text-amber-700 font-semibold p-4 bg-amber-100 rounded-md card">Vui lòng nhập Điểm xuất phát và Số ngày.</p>`;
+                    return;
+                }
+                if (currentMode === 'auto' && !destination) {
+                    targetContent.innerHTML = `<p class="text-amber-700 font-semibold p-4 bg-amber-100 rounded-md card">Vui lòng nhập Điểm đến để tạo kế hoạch tự động.</p>`;
+                    return;
+                }
+                if (currentMode === 'discovery' && !destination) {
+                    targetContent.innerHTML = `<p class="text-amber-700 font-semibold p-4 bg-amber-100 rounded-md card">Vui lòng nhập Điểm đến để tìm gợi ý.</p>`;
+                    return;
+                }
+                if (currentMode === 'suggest' && geographyTypes.length === 0) {
+                    targetContent.innerHTML = `<p class="text-amber-700 font-semibold p-4 bg-amber-100 rounded-md card">Vui lòng chọn ít nhất một Loại hình địa lý để được gợi ý.</p>`;
                     return;
                 }
                 
@@ -1008,6 +1189,8 @@
 
                 if (currentMode === 'auto') {
                     await handleAutoMode(budgetData.details);
+                } else if (currentMode === 'suggest') {
+                    await handleSuggestMode(budgetData.details);
                 } else {
                     await handleDiscoveryMode(budgetData.details, false);
                 }
@@ -1046,6 +1229,9 @@
 
                     elementsToClone.forEach(el => {
                         const clone = el.cloneNode(true);
+                        // Clean up clone for PDF
+                        clone.querySelector('#generate-plan-btn')?.remove(); // Remove button from PDF
+                        clone.querySelector('#geography-input-container')?.remove(); // Remove geo input from PDF if it was visible
                         clone.style.marginBottom = '20px';
                         printableContent.appendChild(clone);
                     });
@@ -1078,7 +1264,7 @@
                         heightLeft -= pdfHeight;
                     }
 
-                    pdf.save(`ke-hoach-${budgetData.details.destination || 'custom'}.pdf`);
+                    pdf.save(`ke-hoach-${budgetData.details.destination || 'goi-y'}.pdf`);
                 } finally {
                     document.body.removeChild(printableContent);
                 }
@@ -1168,12 +1354,6 @@
                 }
             };
 
-            const showAlert = (title, message) => {
-                alertModalTitle.textContent = title;
-                alertModalMessage.textContent = message;
-                alertModal.classList.remove('hidden');
-            };
-
             alertModalClose.addEventListener('click', () => {
                 alertModal.classList.add('hidden');
             });
@@ -1191,6 +1371,7 @@
                     if (currentMode === 'discovery') {
                         await generateDiscoveryModePdf();
                     } else {
+                        // This now serves both 'auto' and 'suggest' modes
                         await generateAutoModePdf();
                     }
                 } catch (error) {
@@ -1219,3 +1400,5 @@
     </script>
 </body>
 </html>
+
+
